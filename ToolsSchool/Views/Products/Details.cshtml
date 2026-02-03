@@ -1,0 +1,608 @@
+﻿@model ToolsSchool.Entities.Product
+@{
+    ViewData["Title"] = Model.ProductName;
+    var isExpired = Model.ExpiryDate.HasValue && Model.ExpiryDate.Value < DateTime.Now;
+    var daysLeft = Model.ExpiryDate.HasValue ? (Model.ExpiryDate.Value - DateTime.Now).Days : 0;
+}
+
+<div class="container py-4">
+    <!-- ناوبری -->
+    <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '›';">
+        <ol class="breadcrumb bg-light p-3 rounded" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none"><i class="fas fa-home"></i> خانه</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none"><i class="fas fa-th-list"></i> همه آگهی‌ها</a></li>
+            <li class="breadcrumb-item"><a asp-action="ByCategory" asp-route-category="@Model.Category" class="text-decoration-none"><i class="fas fa-tag"></i> @Model.Category</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.ProductName</li>
+        </ol>
+    </nav>
+
+    <!-- هشدار اگر آگهی منقضی شده باشد -->
+    @if (isExpired)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>توجه!</strong> این آگهی منقضی شده است.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- سمت چپ - تصویر محصول -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
+                <div class="card-body p-4">
+                    <!-- تصویر اصلی -->
+                    <div class="product-image-container mb-4" style="border-radius: 15px; overflow: hidden; border: 3px solid #f0f0f0;">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img id="mainImage" src="@Model.ImagePath" 
+                                 alt="@Model.ProductName" 
+                                 class="img-fluid w-100" 
+                                 style="max-height: 450px; object-fit: contain; cursor: zoom-in;"
+                                 onclick="openImageModal('@Model.ImagePath')">
+                        }
+                        else
+                        {
+                            <div class="text-center py-5 bg-light" style="height: 300px;">
+                                <i class="fas fa-image fa-5x text-secondary mb-3"></i>
+                                <p class="text-muted" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">عکسی برای این محصول موجود نیست</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- وضعیت آگهی -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge @(Model.Status == "Approved" ? "bg-success" : 
+                                           Model.Status == "Pending" ? "bg-warning" : 
+                                           Model.Status == "Rejected" ? "bg-danger" : "bg-secondary") 
+                                           py-2 px-3" style="font-size: 0.9rem;">
+                            @if (Model.Status == "Approved")
+                            {
+                                <i class="fas fa-check-circle me-1"></i> <text>فعال</text>
+                            }
+                            else if (Model.Status == "Pending")
+                            {
+                                <i class="fas fa-clock me-1"></i> <text>در انتظار تأیید</text>
+                            }
+                            else if (Model.Status == "Rejected")
+                            {
+                                <i class="fas fa-times-circle me-1"></i> <text>رد شده</text>
+                            }
+                            else
+                            {
+                                <i class="fas fa-info-circle me-1"></i> <text>@Model.Status</text>
+                            }
+                        </span>
+
+                        <span class="badge @(Model.IsFree ? "bg-info" : "bg-primary") py-2 px-3" style="font-size: 0.9rem;">
+                            @if (Model.IsFree)
+                            {
+                                <i class="fas fa-gift me-1"></i> <text>رایگان</text>
+                            }
+                            else if (Model.Price.HasValue)
+                            {
+                                <i class="fas fa-tag me-1"></i> <text>فروشی</text>
+                            }
+                            else
+                            {
+                                <i class="fas fa-handshake me-1"></i> <text>توافقی</text>
+                            }
+                        </span>
+
+                        <span class="badge @(Model.UsageCondition == "New" ? "bg-success" : 
+                                           Model.UsageCondition == "LikeNew" ? "bg-warning" : "bg-secondary") 
+                                           py-2 px-3" style="font-size: 0.9rem;">
+                            @if (Model.UsageCondition == "New")
+                            {
+                                <i class="fas fa-star me-1"></i> <text>نو</text>
+                            }
+                            else if (Model.UsageCondition == "LikeNew")
+                            {
+                                <i class="fas fa-star-half-alt me-1"></i> <text>در حد نو</text>
+                            }
+                            else
+                            {
+                                <i class="fas fa-sync-alt me-1"></i> <text>کارکرده</text>
+                            }
+                        </span>
+
+                        @if (daysLeft > 0)
+                        {
+                            <span class="badge bg-warning text-dark py-2 px-3" style="font-size: 0.9rem;">
+                                <i class="fas fa-clock me-1"></i> <text>@daysLeft روز مانده</text>
+                            </span>
+                        }
+                    </div>
+
+                    <!-- آمار -->
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <i class="fas fa-eye fa-2x mb-2"></i>
+                                <h5 class="mb-1">@Model.ViewCount</h5>
+                                <p class="mb-0" style="font-size: 0.8rem;">بازدید</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded-3" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                                <h5 class="mb-1">@Model.CreatedDate.ToString("MM/dd")</h5>
+                                <p class="mb-0" style="font-size: 0.8rem;">تاریخ ثبت</p>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded-3" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                                <i class="fas fa-hashtag fa-2x mb-2"></i>
+                                <h5 class="mb-1">@Model.Id</h5>
+                                <p class="mb-0" style="font-size: 0.8rem;">کد آگهی</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- سمت راست - اطلاعات محصول -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-lg border-0 h-100" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <!-- عنوان و قیمت -->
+                    <div class="mb-4">
+                        <h1 class="product-title mb-3" style="color: #2d3748; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                            @Model.ProductName
+                        </h1>
+                        
+                        <div class="price-display p-4 rounded-3" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <div class="text-white text-center">
+                                <span class="d-block mb-1" style="font-size: 0.9rem;">قیمت</span>
+                                <h2 class="mb-0" style="font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                                    @if (Model.IsFree)
+                                    {
+                                        <text>رایگان</text>
+                                    }
+                                    else if (Model.Price.HasValue)
+                                    {
+                                        <text>@Model.Price.Value.ToString("N0") تومان</text>
+                                    }
+                                    else
+                                    {
+                                        <text>توافقی</text>
+                                    }
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- دسته‌بندی و سایر اطلاعات -->
+                    <div class="info-grid mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="info-item p-3 rounded-2" style="background-color: #f8f9fa;">
+                                    <span class="d-block text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="fas fa-tag me-2"></i> دسته‌بندی
+                                    </span>
+                                    <span class="fw-bold" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                        @Model.Category
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item p-3 rounded-2" style="background-color: #f8f9fa;">
+                                    <span class="d-block text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="fas fa-map-marker-alt me-2"></i> شهر
+                                    </span>
+                                    <span class="fw-bold" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                        @(!string.IsNullOrEmpty(Model.City) ? Model.City : "نامشخص")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item p-3 rounded-2" style="background-color: #f8f9fa;">
+                                    <span class="d-block text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="fas fa-barcode me-2"></i> وضعیت کالا
+                                    </span>
+                                    <span class="fw-bold" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                        @(Model.UsageCondition == "New" ? "نو" : 
+                                          Model.UsageCondition == "LikeNew" ? "در حد نو" : "کارکرده")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item p-3 rounded-2" style="background-color: #f8f9fa;">
+                                    <span class="d-block text-muted mb-1" style="font-size: 0.85rem;">
+                                        <i class="fas fa-calendar-times me-2"></i> اعتبار آگهی
+                                    </span>
+                                    <span class="fw-bold" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                        @if (Model.ExpiryDate.HasValue)
+                                        {
+                                            @Model.ExpiryDate.Value.ToString("yyyy/MM/dd")
+                                        }
+                                        else
+                                        {
+                                            <text>نامحدود</text>
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- توضیحات -->
+                    <div class="mb-4">
+                        <h5 class="section-title mb-3" style="color: #4a5568; font-family: 'B Nazanin', 'IRANSans', sans-serif; border-right: 4px solid #4299e1; padding-right: 10px;">
+                            <i class="fas fa-align-right me-2"></i> توضیحات محصول
+                        </h5>
+                        <div class="description-box p-4 rounded-3" style="background-color: #f7fafc; border: 1px solid #e2e8f0;">
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p style="font-family: 'B Nazanin', 'IRANSans', sans-serif; line-height: 1.8; text-align: justify; white-space: pre-line;">
+                                    @Model.Description
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted text-center py-3" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    توضیحاتی برای این محصول ثبت نشده است.
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- اطلاعات تماس -->
+                    <div class="contact-box mb-4">
+                        <h5 class="section-title mb-3" style="color: #4a5568; font-family: 'B Nazanin', 'IRANSans', sans-serif; border-right: 4px solid #48bb78; padding-right: 10px;">
+                            <i class="fas fa-phone-alt me-2"></i> اطلاعات تماس
+                        </h5>
+                        <div class="card border-success border-2" style="border-radius: 15px;">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="contact-icon me-3">
+                                                <i class="fas fa-phone fa-2x text-success"></i>
+                                            </div>
+                                            <div>
+                                                <span class="d-block text-muted mb-1" style="font-size: 0.9rem;">شماره تماس</span>
+                                                <h4 class="mb-0" style="font-family: 'B Nazanin', 'IRANSans', sans-serif; direction: ltr;">
+                                                    @Model.PhoneNumber
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="contact-icon me-3">
+                                                <i class="fas fa-user fa-2x text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <span class="d-block text-muted mb-1" style="font-size: 0.9rem;">ثبت‌کننده</span>
+                                                <h5 class="mb-0" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                                                    @(!string.IsNullOrEmpty(Model.CreatedByUserName) ? Model.CreatedByUserName : "نامشخص")
+                                                </h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- دکمه‌های اقدام -->
+                    <div class="action-buttons">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="tel:@Model.PhoneNumber" class="btn btn-success btn-lg w-100 py-3" 
+                                   style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                                    <i class="fas fa-phone-alt me-2"></i> تماس سریع
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <button onclick="copyPhoneNumber('@Model.PhoneNumber')" 
+                                        class="btn btn-outline-primary btn-lg w-100 py-3"
+                                        style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                                    <i class="fas fa-copy me-2"></i> کپی شماره
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg w-100 py-3"
+                                   style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                                    <i class="fas fa-arrow-right me-2"></i> بازگشت به لیست
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <button onclick="shareProduct()" class="btn btn-info btn-lg w-100 py-3"
+                                        style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
+                                    <i class="fas fa-share-alt me-2"></i> اشتراک‌گذاری
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- بخش محصولات مشابه -->
+    @if (ViewBag.RelatedProducts != null && ((List<ToolsSchool.Entities.Product>)ViewBag.RelatedProducts).Any())
+    {
+        <div class="mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="section-title" style="color: #2d3748; font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                    <i class="fas fa-th-large me-2"></i> محصولات مشابه در دسته <span class="text-primary">@Model.Category</span>
+                </h3>
+                <a asp-action="ByCategory" asp-route-category="@Model.Category" 
+                   class="btn btn-outline-primary" style="border-radius: 10px;">
+                    مشاهده همه <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            </div>
+            
+            <div class="row">
+                @foreach (var related in (List<ToolsSchool.Entities.Product>)ViewBag.RelatedProducts)
+                {
+                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                        <div class="card product-card h-100 border-0 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: all 0.3s;">
+                            <a asp-action="Details" asp-route-id="@related.Id" class="text-decoration-none text-dark">
+                                <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
+                                    @if (!string.IsNullOrEmpty(related.ImagePath))
+                                    {
+                                        <img src="@related.ImagePath" alt="@related.ProductName" 
+                                             class="img-fluid w-100 h-100" style="object-fit: cover; transition: transform 0.5s;">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge @(related.IsFree ? "bg-info" : "bg-primary")">
+                                                @if (related.IsFree)
+                                                {
+                                                    <text>رایگان</text>
+                                                }
+                                                else if (related.Price.HasValue)
+                                                {
+                                                    <text>@related.Price.Value.ToString("N0") تومان</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>توافقی</text>
+                                                }
+                                            </span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center w-100 h-100">
+                                            <i class="fas fa-image fa-3x text-secondary"></i>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="card-body">
+                                    <h6 class="card-title mb-2" style="font-family: 'B Nazanin', 'IRANSans', sans-serif; height: 3rem; overflow: hidden;">
+                                        @related.ProductName
+                                    </h6>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge @(related.UsageCondition == "New" ? "bg-success" : 
+                                                           related.UsageCondition == "LikeNew" ? "bg-warning" : "bg-secondary")">
+                                            @(related.UsageCondition == "New" ? "نو" : 
+                                              related.UsageCondition == "LikeNew" ? "در حد نو" : "کارکرده")
+                                        </span>
+                                        <small class="text-muted">
+                                            <i class="fas fa-eye me-1"></i> @related.ViewCount
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            @related.CreatedDate.ToString("yyyy/MM/dd")
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- مودال برای نمایش بزرگ عکس -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" style="max-height: 70vh;">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .breadcrumb {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        .product-card:hover .card-img-top img {
+            transform: scale(1.1);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        .stat-box {
+            transition: transform 0.3s;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(72, 187, 120, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .price-display {
+            box-shadow: 0 10px 20px rgba(67, 233, 123, 0.3);
+        }
+        
+        .description-box {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* اسکرول بار سفارشی */
+        .description-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .description-box::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .description-box::-webkit-scrollbar-thumb {
+            background: #4299e1;
+            border-radius: 10px;
+        }
+        
+        .description-box::-webkit-scrollbar-thumb:hover {
+            background: #3182ce;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // بزرگنمایی عکس
+        function openImageModal(imageUrl) {
+            document.getElementById('modalImage').src = imageUrl;
+            const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+            imageModal.show();
+        }
+        
+        // کپی شماره تلفن
+        function copyPhoneNumber(phoneNumber) {
+            navigator.clipboard.writeText(phoneNumber).then(() => {
+                // نمایش نوتیفیکیشن
+                showToast('success', 'شماره تلفن با موفقیت کپی شد!');
+            }).catch(err => {
+                console.error('خطا در کپی کردن: ', err);
+                showToast('error', 'خطا در کپی کردن شماره!');
+            });
+        }
+        
+        // اشتراک‌گذاری محصول
+        function shareProduct() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '@Model.ProductName',
+                    text: 'این محصول را در سایت ما ببینید:',
+                    url: window.location.href
+                })
+                .then(() => console.log('اشتراک‌گذاری موفقیت‌آمیز بود'))
+                .catch((error) => console.log('خطا در اشتراک‌گذاری:', error));
+            } else {
+                // نمایش نوتیفیکیشن برای دستگاه‌هایی که از Web Share API پشتیبانی نمی‌کنند
+                showToast('info', 'امکان اشتراک‌گذاری در این مرورگر وجود ندارد.');
+            }
+        }
+        
+        // نمایش نوتیفیکیشن
+        function showToast(type, message) {
+            // ایجاد المان toast
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+            
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body" style="font-family: 'B Nazanin', 'IRANSans', sans-serif;">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            // اضافه کردن به صفحه
+            const toastContainer = document.getElementById('toastContainer') || (() => {
+                const container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(container);
+                return container;
+            })();
+            
+            toastContainer.appendChild(toastEl);
+            
+            // نمایش toast
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+            
+            // حذف پس از نمایش
+            toastEl.addEventListener('hidden.bs.toast', function () {
+                toastEl.remove();
+            });
+        }
+        
+        // انیمیشن‌های اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            // انیمیشن برای عناصر
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.product-card, .stat-box, .info-item');
+                
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const screenPosition = window.innerHeight / 1.2;
+                    
+                    if (elementPosition < screenPosition) {
+                        element.classList.add('animate__animated', 'animate__fadeInUp');
+                    }
+                });
+            };
+            
+            window.addEventListener('scroll', animateOnScroll);
+            animateOnScroll(); // اجرای اولیه
+            
+            // هایلایت کد آگهی
+            const productCode = document.querySelector('.stat-box:nth-child(3)');
+            if (productCode) {
+                productCode.addEventListener('click', function() {
+                    copyPhoneNumber('@Model.Id');
+                });
+            }
+        });
+    </script>
+}

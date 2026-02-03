@@ -1,0 +1,41 @@
+﻿@model ToolsSchool.Models.SubmitLoginUser
+@{
+    ViewData["Title"] = "ورود";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="Users" asp-action="SubmintLoginUser" method="post">
+
+            <div class="d-flex justify-content-around">
+
+            <div class="w-50">
+                <div class="">
+
+                    <label >شماره همراه</label>
+                    <input asp-for="@Model.PhoneNum" type="text" class="form-control" />
+                </div>
+                <div>
+
+                    <label class="">رمز عبور</label>
+                    <input asp-for="@Model.Password" type="password" class="form-control" />
+                </div>
+
+            </div>
+            </div>
+            <div class="d-flex justify-content-around">
+                <button type="submit" class="btn_1 mt-2">ورود </button>
+            </div>
+           
+        </form>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["Message"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+        }
+    </div>
+</div>

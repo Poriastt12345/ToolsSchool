@@ -1,0 +1,257 @@
+﻿@model IEnumerable<ToolsSchool.Entities.Product>
+@{
+    ViewData["Title"] = "لیست محصولات";
+}
+<h1 style="text-align:center;color:black; top:63%">محصولات</h1>
+<hr style="border: none; height: 2px; background-color: #808080;" />
+<a class="z_index" href="#">
+    <img style="border-radius:8px" width="1500" height="250" src="~/media/458_5600x3700-300x152.jpg" />
+    <style>
+        .img-text {
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+            color: black;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+    </style>
+    <div class="img-text">
+        هرچی برای مدرسه لازم داری اینجاست....
+        <br />
+        وسایل مدرسه , سالم و به صرفه
+        <br />
+        هم خرید کن , هم آگهی ثبت کن
+    </div>
+</a>
+<br />
+<br />
+<!-- بخش جستجو و فیلتر -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="get" asp-action="Index" class="d-flex">
+            <input type="text" name="search" class="form-control me-2 ms-2" placeholder="جستجوی محصول..."
+                   value="@ViewBag.SearchQuery" style="border-radius: 10px; padding: 10px 20px;margin-left:5px">
+            <button type="submit" class="btn btn-primary" style="border-radius: 10px; padding: 10px 30px;">
+                <i class="fas fa-search"></i> جستجو
+            </button>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle w-100" type="button"
+                    data-bs-toggle="dropdown" style="border-radius: 10px; padding: 10px;">
+                دسته‌بندی‌ها @(ViewBag.SelectedCategory != null ? $"- {ViewBag.SelectedCategory}" : "")
+            </button>
+            <ul class="dropdown-menu w-100">
+                <li><a class="dropdown-item" asp-action="Index">همه دسته‌بندی‌ها</a></li>
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <li>
+                        <a class="dropdown-item" asp-action="Index" asp-route-category="@category">
+                            @category
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</div>
+@if (ViewBag.TotalItems != null)
+{
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        تعداد @ViewBag.TotalItems محصول یافت شد.
+    </div>
+}
+<!-- لیست محصولات -->
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s;">
+                    <div class="card-img-top" style="height: 200px; overflow: hidden;">
+                        @if (!string.IsNullOrEmpty(product.ImagePath))
+                        {
+                            <img src="@product.ImagePath" alt="@product.ProductName"
+                                 class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                 style="width: 100%; height: 100%;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-family: 'B Nazanin', sans-serif; font-size: 1.2rem;">
+                            @product.ProductName
+                        </h5>
+
+                        <div class="mb-2">
+                            <span class="badge bg-primary" style="font-family: 'B Nazanin', sans-serif;">
+                                @product.Category
+                            </span>
+                            <span class="badge @(product.UsageCondition == "New" ? "bg-success" :
+                                            product.UsageCondition == "LikeNew" ? "bg-warning" : "bg-secondary")"
+                                                                style="font-family: 'B Nazanin', sans-serif;">
+                                @(product.UsageCondition == "New" ? "نو" :
+                                                        product.UsageCondition == "LikeNew" ? "در حد نو" : "کارکرده")
+                    </span>
+                </div>
+
+                        <p class="card-text text-muted" style="font-family: 'B Nazanin', sans-serif; font-size: 0.9rem;">
+                    @if (product.Description != null && product.Description.Length > 100)
+                            {
+                                @product.Description.Substring(0, 100) <text>...</text>
+                            }
+                            else
+                            {
+                                @product.Description
+                            }
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="h5" style="color: #28a745; font-family: 'B Nazanin', sans-serif;">
+                                @if (product.IsFree)
+                                {
+                                    <text>رایگان</text>
+                                }
+                                else if (product.Price.HasValue)
+                                {
+                                    <text>@product.Price.Value.ToString("N0") تومان</text>
+                                }
+                                else
+                                {
+                                    <text>توافقی</text>
+                                }
+                            </span>
+
+                            <a asp-action="Details" asp-route-id="@product.Id"
+                               class="btn btn-outline-primary"
+                               style="border-radius: 20px; font-family: 'B Nazanin', sans-serif;">
+                                مشاهده جزئیات
+                            </a>
+                        </div>
+
+                        <div class="mt-2 text-muted" style="font-size: 0.8rem; font-family: 'B Nazanin', sans-serif;">
+                            <i class="fas fa-eye"></i> @product.ViewCount بازدید
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-calendar"></i> @product.CreatedDate.ToString("yyyy/MM/dd")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- صفحه‌بندی -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="صفحه‌بندی محصولات">
+            <ul class="pagination justify-content-center">
+                @if (ViewBag.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage - 1)"
+                           asp-route-category="@ViewBag.SelectedCategory"
+                           asp-route-search="@ViewBag.SearchQuery">
+                            قبلی
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-category="@ViewBag.SelectedCategory"
+                           asp-route-search="@ViewBag.SearchQuery">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-page="@(ViewBag.CurrentPage + 1)"
+                           asp-route-category="@ViewBag.SelectedCategory"
+                           asp-route-search="@ViewBag.SearchQuery">
+                            بعدی
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+        <h3 style="font-family: 'B Nazanin', sans-serif; color: #666;">
+            محصولی یافت نشد
+        </h3>
+        <p class="text-muted" style="font-family: 'B Nazanin', sans-serif;">
+            @if (!string.IsNullOrEmpty(ViewBag.SearchQuery))
+            {
+                <text>هیچ محصولی با عبارت "@ViewBag.SearchQuery" یافت نشد.</text>
+            }
+            else if (!string.IsNullOrEmpty(ViewBag.SelectedCategory))
+            {
+                <text>هیچ محصولی در دسته‌بندی "@ViewBag.SelectedCategory" یافت نشد.</text>
+            }
+            else
+            {
+                <text>در حال حاضر هیچ محصولی برای نمایش وجود ندارد.</text>
+            }
+        </p>
+        <a asp-action="Index" class="btn btn-primary" style="border-radius: 25px; padding: 10px 30px;">
+            مشاهده همه محصولات
+        </a>
+    </div>
+}
+</div>
+
+@section Styles {
+    <style>
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+        }
+
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // اضافه کردن انیمیشن به کارت‌ها
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate__animated', 'animate__fadeInUp');
+            });
+        });
+    </script>
+}

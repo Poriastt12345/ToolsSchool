@@ -1,0 +1,135 @@
+﻿@model ToolsSchool.Models.AdCreateViewModel
+@{
+    ViewData["Title"] = "ثبت آگهی جدید";
+}
+
+<h1 style="text-align:center;color:black;font-style:initial">ثبت آگهی</h1>
+<hr />
+
+<form method="post" enctype="multipart/form-data" asp-controller="Add" asp-action="CreateProduct">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="z_index" style="display:flex;gap:200px">
+        <div style="width:100%">
+            <div class="form-group">
+                <label class="control-label">نام محصول:</label>
+                <input asp-for="ProductName" type="text" style="width:400px;height:40px;border-radius:20px;padding:20px" placeholder="نام محصول را وارد کنید" required />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">دسته‌ها:</label>
+                <input asp-for="Category" list="categories" style="width:400px;height:40px;border-radius:20px;padding:20px" placeholder="دسته محصول را انتخاب کنید" required>
+                <datalist id="categories">
+                    <option value="لباس" />
+                    <option value="لوازم تحریر" />
+                    <option value="کفش" />
+                    <option value="کیف و کوله" />
+                    <option value="کتاب درسی" />
+                    <option value="وسایل ورزشی" />
+                    <option value="اکسسوری مدرسه" />
+                </datalist>
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">قیمت:</label>
+                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:15px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input asp-for="IsFree" onchange="ChangePrice()" name="IsFree" type="radio" value="true" checked style="width:20px; height:20px;">
+                        <span style="font-size:18px;">رایگان</span>
+                    </label>
+
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input asp-for="IsFree" onchange="ChangePrice()" name="IsFree" type="radio" value="false" style="width:20px; height:20px;">
+                        <span style="font-size:18px;">فروشی</span>
+                    </label>
+                </div>
+
+                <div id="priceInputContainer" style="display:none;">
+                    <input asp-for="Price" type="number" id="priceInput" style="width:400px; height:40px; border-radius:20px; padding:10px; font-size:16px;" placeholder="قیمت محصول را وارد کنید" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">کارکرد:</label>
+                <div style="display:flex; justify-content:center; gap:30px; margin-bottom:15px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input asp-for="UsageCondition" type="radio" value="New" checked style="width:20px; height:20px;">
+                        <span style="font-size:18px;">نو</span>
+                    </label>
+
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input asp-for="UsageCondition" type="radio" value="LikeNew" style="width:20px; height:20px;">
+                        <span style="font-size:18px;">در حد نو</span>
+                    </label>
+
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input asp-for="UsageCondition" type="radio" value="Used" style="width:20px; height:20px;">
+                        <span style="font-size:18px;">کارکرده</span>
+                    </label>
+                </div>
+                <span asp-validation-for="UsageCondition" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">شماره تلفن:</label>
+                <input asp-for="PhoneNumber" type="tel" style="width:400px;height:40px;border-radius:20px;padding:10px" placeholder="شماره تلفن خود را وارد کنید" required />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">توضیحات:</label>
+                <textarea asp-for="Description" rows="3" style="width:400px;height:80px;border-radius:20px" placeholder="توضیحات(اختیاری)"></textarea>
+                
+            </div>
+
+            <br />
+            <div class="form-group">
+                <button type="submit" class="btn_1" style="width:400px;height:40px;font-size:15px;border-radius:20px;padding:10px">ثبت آگهی</button>
+            </div>
+        </div>
+        <div>
+            <div class="form-group">
+                <label class="control-label" style="display:block; margin-bottom:5px;">عکس محصول:</label>
+                <label for="ProductImage" id="imageBox" style="display:block;width:400px;height:400px;border:2px dashed #aaa;border-radius:12px;background-image:url('/media/InShot_20251220_191657069.jpg');background-size:cover;background-position:center;cursor:pointer;text-align:center;line-height:400px;color:#555;font-size:18px;">
+                    برای انتخاب عکس کلیک کنید
+                </label>
+                <input asp-for="ProductImage" type="file" id="ProductImage" style="display:none;" onchange="previewImage(event)" accept="image/*" />
+                <span asp-validation-for="ProductImage" class="text-danger" style="display:block; margin-top:5px;"></span>
+                <p style="text-align:center;color:black; margin-top:10px;">عکس محصول را وارد کنید</p>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function previewImage(event) {
+            const box = document.getElementById('imageBox');
+            const file = event.target.files[0];
+            if (file) {
+                box.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
+                box.textContent = '';
+            }
+        }
+
+        function ChangePrice() {
+            const isFree = document.querySelector('input[name="IsFree"]:checked').value === 'true';
+            const priceContainer = document.getElementById('priceInputContainer');
+
+            if (isFree) {
+                priceContainer.style.display = 'none';
+                document.getElementById('priceInput').value = '';
+            } else {
+                priceContainer.style.display = 'block';
+            }
+        }
+
+        // مقداردهی اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            ChangePrice();
+        });
+    </script>
+}

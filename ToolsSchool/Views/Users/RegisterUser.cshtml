@@ -1,0 +1,67 @@
+﻿@model ToolsSchool.Models.SubmitRegisterUserDto
+@{
+    ViewData["Title"] = "ثبت نام";
+}
+<h1 style="text-align:center; color:black;font-style:initial">ثبت نام</h1>
+<div class="card">
+    <div class="card-body">
+        <form asp-controller="Users" asp-action="SubmitReqisterUser" method="post">
+
+            <div class="d-flex justify-content-around">
+                <div class="">
+
+                    <label class="">نام</label>
+                    <input asp-for="@Model.Name" type="text" class="form-control" />
+                </div>
+                <div>
+
+                    <label class="">نام خانوادگی</label>
+                    <input asp-for="@Model.LastName" type="text" class="form-control" />
+                </div>
+
+            </div>
+            <div class="d-flex justify-content-around">
+                <div class="">
+
+                    <label class="requaierd">ایمیل</label>
+                    <input asp-for="@Model.Email" type="text" class="form-control" />
+                </div>
+                <div>
+
+                    <label class="">شماره همراه</label>
+                    <input asp-for="@Model.PhoneNumber" type="text" class="form-control" />
+                </div>
+
+            </div>
+            <div class="d-flex justify-content-around">
+                <div class="">
+
+                    <label class="requaierd">رمز عبور</label>
+                    <input asp-for="@Model.Password" type="password" class="form-control" />
+                </div>
+                <div>
+
+                    <label class="">تکرار رمز عبور</label>
+                    <input asp-for="@Model.Password2" type="password" class="form-control" />
+                </div>
+
+            </div>
+            <div class="d-flex justify-content-around">
+                <button type="submit" class="btn_1">ثبت نام</button>
+            </div>
+            <div class="d-flex justify-content-around mt-2">
+
+                <a asp-action="LoginUser" asp-controller="Users">آیا حساب کاربری دارید؟ورود کنید...</a>
+            </div>
+        </form>
+
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["Message"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+        }
+    </div>
+</div>
