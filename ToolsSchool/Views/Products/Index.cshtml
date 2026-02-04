@@ -4,38 +4,13 @@
 }
 <h1 style="text-align:center;color:black; top:63%">محصولات</h1>
 <hr style="border: none; height: 2px; background-color: #808080;" />
-<a class="z_index" href="#">
-    <img style="border-radius:8px" width="1500" height="250" src="~/media/458_5600x3700-300x152.jpg" />
-    <style>
-        .img-text {
-            position: absolute;
-            top: 50%;
-            right: 50%;
-            transform: translate(50%, -50%);
-            color: black;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-    </style>
-    <div class="img-text">
-        هرچی برای مدرسه لازم داری اینجاست....
-        <br />
-        وسایل مدرسه , سالم و به صرفه
-        <br />
-        هم خرید کن , هم آگهی ثبت کن
-    </div>
-</a>
-<br />
-<br />
 <!-- بخش جستجو و فیلتر -->
 <div class="row mb-4">
     <div class="col-md-8">
         <form method="get" asp-action="Index" class="d-flex">
             <input type="text" name="search" class="form-control me-2 ms-2" placeholder="جستجوی محصول..."
                    value="@ViewBag.SearchQuery" style="border-radius: 10px; padding: 10px 20px;margin-left:5px">
-            <button type="submit" class="btn btn-primary" style="border-radius: 10px; padding: 10px 30px;">
+            <button type="submit" class="btn_1" style="border-radius: 10px; padding: 10px 30px;">
                 <i class="fas fa-search"></i> جستجو
             </button>
         </form>
@@ -96,7 +71,7 @@
                         </h5>
 
                         <div class="mb-2">
-                            <span class="badge bg-primary" style="font-family: 'B Nazanin', sans-serif;">
+                            <span class="badge bg-primar" style="font-family: 'B Nazanin', sans-serif;">
                                 @product.Category
                             </span>
                             <span class="badge @(product.UsageCondition == "New" ? "bg-success" :
@@ -135,8 +110,8 @@
                             </span>
 
                             <a asp-action="Details" asp-route-id="@product.Id"
-                               class="btn btn-outline-primary"
-                               style="border-radius: 20px; font-family: 'B Nazanin', sans-serif;">
+                               class="btn_1 p-1 "
+                               style="border-radius: 20px; font-family: 'B Nazanin', sans-serif;width:150px">
                                 مشاهده جزئیات
                             </a>
                         </div>

@@ -4,7 +4,6 @@
     var isExpired = Model.ExpiryDate.HasValue && Model.ExpiryDate.Value < DateTime.Now;
     var daysLeft = Model.ExpiryDate.HasValue ? (Model.ExpiryDate.Value - DateTime.Now).Days : 0;
 }
-
 <div class="container py-4">
     <!-- ناوبری -->
     <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '›';">
@@ -55,7 +54,7 @@
                         <span class="badge @(Model.Status == "Approved" ? "bg-success" : 
                                            Model.Status == "Pending" ? "bg-warning" : 
                                            Model.Status == "Rejected" ? "bg-danger" : "bg-secondary") 
-                                           py-2 px-3" style="font-size: 0.9rem;">
+                                           py-2 px-3 m-1" style="font-size: 0.9rem;">
                             @if (Model.Status == "Approved")
                             {
                                 <i class="fas fa-check-circle me-1"></i> <text>فعال</text>
@@ -74,7 +73,7 @@
                             }
                         </span>
 
-                        <span class="badge @(Model.IsFree ? "bg-info" : "bg-primary") py-2 px-3" style="font-size: 0.9rem;">
+                        <span class="badge @(Model.IsFree ? "bg-info" : "bg-primary") py-2 px-3 m-1" style="font-size: 0.9rem;">
                             @if (Model.IsFree)
                             {
                                 <i class="fas fa-gift me-1"></i> <text>رایگان</text>
@@ -83,15 +82,12 @@
                             {
                                 <i class="fas fa-tag me-1"></i> <text>فروشی</text>
                             }
-                            else
-                            {
-                                <i class="fas fa-handshake me-1"></i> <text>توافقی</text>
-                            }
+                           
                         </span>
 
                         <span class="badge @(Model.UsageCondition == "New" ? "bg-success" : 
                                            Model.UsageCondition == "LikeNew" ? "bg-warning" : "bg-secondary") 
-                                           py-2 px-3" style="font-size: 0.9rem;">
+                                           py-2 px-3 m-1" style="font-size: 0.9rem;">
                             @if (Model.UsageCondition == "New")
                             {
                                 <i class="fas fa-star me-1"></i> <text>نو</text>
@@ -108,7 +104,7 @@
 
                         @if (daysLeft > 0)
                         {
-                            <span class="badge bg-warning text-dark py-2 px-3" style="font-size: 0.9rem;">
+                            <span class="badge bg-warning text-dark py-2 px-3 m-1" style="font-size: 0.9rem;">
                                 <i class="fas fa-clock me-1"></i> <text>@daysLeft روز مانده</text>
                             </span>
                         }
@@ -291,27 +287,27 @@
                     <!-- دکمه‌های اقدام -->
                     <div class="action-buttons">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <a href="tel:@Model.PhoneNumber" class="btn btn-success btn-lg w-100 py-3" 
+                            <div class="col-md-6 ">
+                                <a href="tel:@Model.PhoneNumber" class="btn btn-success w-100 btn-lg p-3 m-1" 
                                    style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
                                     <i class="fas fa-phone-alt me-2"></i> تماس سریع
                                 </a>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 ">
                                 <button onclick="copyPhoneNumber('@Model.PhoneNumber')" 
-                                        class="btn btn-outline-primary btn-lg w-100 py-3"
+                                        class="btn btn-outline-primary btn-lg w-100 py-3 p-3 m-1"
                                         style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
                                     <i class="fas fa-copy me-2"></i> کپی شماره
                                 </button>
                             </div>
-                            <div class="col-md-6">
-                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg w-100 py-3"
+                            <div class="col-md-6 ">
+                                <a asp-action="Index" class="btn btn-outline-secondary btn-lg w-100 py-3 p-3 m-1"
                                    style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
                                     <i class="fas fa-arrow-right me-2"></i> بازگشت به لیست
                                 </a>
                             </div>
                             <div class="col-md-6">
-                                <button onclick="shareProduct()" class="btn btn-info btn-lg w-100 py-3"
+                                <button onclick="shareProduct()" class="btn btn-info btn-lg w-100 py-3  p-3 m-1"
                                         style="border-radius: 12px; font-family: 'B Nazanin', 'IRANSans', sans-serif; font-weight: bold;">
                                     <i class="fas fa-share-alt me-2"></i> اشتراک‌گذاری
                                 </button>
@@ -348,7 +344,7 @@
                                     {
                                         <img src="@related.ImagePath" alt="@related.ProductName" 
                                              class="img-fluid w-100 h-100" style="object-fit: cover; transition: transform 0.5s;">
-                                        <div class="position-absolute top-0 end-0 m-2">
+                                        <div class="position-absolute top-0 end-0 m-1">
                                             <span class="badge @(related.IsFree ? "bg-info" : "bg-primary")">
                                                 @if (related.IsFree)
                                                 {
